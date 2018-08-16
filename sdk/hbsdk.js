@@ -4,9 +4,12 @@ var Promise = require('bluebird');
 var moment = require('moment');
 var HmacSHA256 = require('crypto-js/hmac-sha256')
 var http = require('../framework/httpClient');
+var url = require('url');
 
-const URL_HUOBI_PRO = 'api.huobipro.com';
-// const URL_HUOBI_PRO = 'api.huobi.pro'; //备用地址
+const URL = 'https://api.huobipro.com';
+
+const HOST = url.parse(URL).host;
+// const HOST = 'api.huobi.pro'; //备用地址
 
 const DEFAULT_HEADERS = {
     "Content-Type": "application/json",
@@ -50,7 +53,7 @@ function get_body() {
 function call_api(method, path, payload, body) {
     return new Promise(resolve => {
         var account_id = config.huobi.account_id_pro;
-        var url = `https://${URL_HUOBI_PRO}${path}?${payload}`;
+        var url = `${URL}${path}?${payload}`;
         console.log(url);
         var headers = DEFAULT_HEADERS;
         headers.AuthData = get_auth();
@@ -97,14 +100,14 @@ var HUOBI_PRO = {
     get_account: function() {
         var path = `/v1/account/accounts`;
         var body = get_body();
-        var payload = sign_sha('GET', URL_HUOBI_PRO, path, body);
+        var payload = sign_sha('GET', HOST, path, body);
         return call_api('GET', path, payload, body);
     },
     get_balance: function() {
         var account_id = config.huobi.account_id_pro;
         var path = `/v1/account/accounts/${account_id}/balance`;
         var body = get_body();
-        var payload = sign_sha('GET', URL_HUOBI_PRO, path, body);
+        var payload = sign_sha('GET', HOST, path, body);
         return call_api('GET', path, payload, body);
     },
     get_open_orders: function(symbol) {
@@ -112,19 +115,19 @@ var HUOBI_PRO = {
         var body = get_body();
         body.symbol = symbol;
         body.states = 'submitted,partial-filled';
-        var payload = sign_sha('GET', URL_HUOBI_PRO, path, body);
+        var payload = sign_sha('GET', HOST, path, body);
         return call_api('GET', path, payload, body);
     },
     get_order: function(order_id) {
         var path = `/v1/order/orders/${order_id}`;
         var body = get_body();
-        var payload = sign_sha('GET', URL_HUOBI_PRO, path, body);
+        var payload = sign_sha('GET', HOST, path, body);
         return call_api('GET', path, payload, body);
     },
     buy_limit: function(symbol, amount, price) {
         var path = '/v1/order/orders/place';
         var body = get_body();
-        var payload = sign_sha('POST', URL_HUOBI_PRO, path, body);
+        var payload = sign_sha('POST', HOST, path, body);
 
         body["account-id"] = config.huobi.account_id_pro;
         body.type = "buy-limit";
@@ -137,7 +140,7 @@ var HUOBI_PRO = {
     sell_limit: function(symbol, amount, price) {
         var path = '/v1/order/orders/place';
         var body = get_body();
-        var payload = sign_sha('POST', URL_HUOBI_PRO, path, body);
+        var payload = sign_sha('POST', HOST, path, body);
 
         body["account-id"] = config.huobi.account_id_pro;
         body.type = "sell-limit";
@@ -150,7 +153,7 @@ var HUOBI_PRO = {
     withdrawal: function(address, coin, amount, payment_id) {
         var path = `/v1/dw/withdraw/api/create`;
         var body = get_body();
-        var payload = sign_sha('POST', URL_HUOBI_PRO, path, body);
+        var payload = sign_sha('POST', HOST, path, body);
 
         body.address = address;
         body.amount = amount;
